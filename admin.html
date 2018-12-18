@@ -54,5 +54,65 @@
 <input id="donation" type="number" placeholder="Add Donation Amount" />
 <button id="action-submit-donation">Add</button>
 
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script>
+    var locked = false;
+    $(function(){
+        $('#action-submit-donation').click(function(){
+            // block if submitting
+            // validate the amount fist
+            var v = parseInt($('#donation').val(), 10);
+            if(!Number.isInteger(v)){
+                window.alert('Must input a valid number!');
+            }
+            if(locked){
+                return;
+            }
+            locked = true;
+            $.ajax({
+                method: 'POST',
+                url: '/api/v1/donation',
+                contentType: 'application/json',
+                data: JSON.stringify({'amount': v})
+            })
+            .done(function(data){
+                locked = false;
+                location.reload();
+            })
+            .fail(function(data){
+                locked = false;
+                window.alert('Unexpected Error While Posting…');
+            });
+        });
+        // holy duplicates broholes
+        $('#action-submit-total').click(function(){
+            // block if submitting
+            // validate the amount fist
+            var v = parseInt($('#total').val(), 10);
+            if(!Number.isInteger(v)){
+                window.alert('Must input a valid number!');
+            }
+            if(locked){
+                return;
+            }
+            locked = true;
+            $.ajax({
+                method: 'PATCH',
+                url: '/api/v1/campaign',
+                contentType: 'application/json',
+                data: JSON.stringify({'amount': v})
+            })
+            .done(function(data){
+                locked = false;
+                location.reload();
+            })
+            .fail(function(data){
+                locked = false;
+                window.alert('Unexpected Error While Posting…');
+            });
+        });
+    });
+</script>
+
 </body>
 </html>
