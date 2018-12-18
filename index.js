@@ -5,6 +5,9 @@ const port = 3000
 const redis = require("redis")
 const client = redis.createClient()
 
+const {promisify} = require('util')
+const getAsync = promisify(client.get).bind(client)
+
 app.use(express.json())
 app.engine('html', require('ejs').renderFile)
 
@@ -14,11 +17,9 @@ app.get('/', (req, res) => res.send('Cornerstone Riordian Fundraiser'))
 // load file from filesystem
 // app.get('/embed')
 app.get('/embed', (req, res) => {
-    client.get('ledger', (err, reply) => {
-        res.render(__dirname + '/index.html', {amount: reply})
-        //return parseInt(reply, 10);
-    });
-    //res.render(__dirname + '/index.html', {amount: getDonationSum()})
+    getDonationSum().then((amount) => {
+        res.render(__dirname + '/index.html', {amount: amount})
+    })
 })
 // static serve stuff?? meh meh meh embed it all bro holes, keep it simps though
 
@@ -30,36 +31,31 @@ app.get('/api/v1/campaign', (req, res) => {
     // send back dat json broholes
     // TODO: where do we get this from? redis? flatfile? meh meh
     // meh meh meh meh meh meh
-    //const amount = await getDonationSum()
-    //res.send({amount: amount})
-    client.get('ledger', (err, reply) => {
-        res.send({amount: reply})
-        //return parseInt(reply, 10);
-    });
+    // client.get('ledger', (err, reply) => {
+    //     res.send({amount: reply})
+    // });
+    getDonationSum().then((amount) => {
+        res.send({amount: amount})
+    })
 })
 
 // internal lookup method for the campaign amount bruh
 
 // )
 async function getDonationSum(){
-    // peep redis and get da deets holmes
-    client.get('ledger', (err, reply) => {
-        return parseInt(reply, 10);
-    });
+    const res = await getAsync('ledger')
+    return parseInt(res, 10)
 }
 
 // admin section
 // basic auth from nginx or something son, yea that should do
 app.get('/admin', (req, res) => {
-    client.get('ledger', (err, reply) => {
-        res.render(__dirname + '/admin.html', {amount: reply})
-        //return parseInt(reply, 10);
-    });
-    /*
+    // client.get('ledger', (err, reply) => {
+    //     res.render(__dirname + '/admin.html', {amount: reply})
+    // });
     getDonationSum().then((amount) => {
         res.render(__dirname + '/admin.html', {amount: amount})
     })
-    */
 })
 // should show the current balance, offer the ability to add funds and also set a total
 app.post('/api/v1/donation', (req, res) => {
