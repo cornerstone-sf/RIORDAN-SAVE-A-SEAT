@@ -21,6 +21,12 @@ app.get('/embed', (req, res) => {
         res.render(__dirname + '/index.html', {amount: amount})
     })
 })
+
+app.get('/debug', (req, res) => {
+    getDonationSum().then((amount) => {
+        res.render(__dirname + '/debug.html', {amount: amount})
+    })
+})
 // static serve stuff?? meh meh meh embed it all bro holes, keep it simps though
 
 // redis list aka ledger

@@ -40,7 +40,7 @@
 
 <!-- current value shown here -->
 
-<h3>Current Total is <span><%= amount %></span></h3>
+<h3>Current Total is <strong id="rickross">RICK</strong><span><%= amount %></span></h3>
 
 <hr />
 
@@ -58,6 +58,18 @@
 <script>
     var locked = false;
     $(function(){
+
+        $.ajax({
+            method: 'GET',
+            url: '/api/v1/campaign',
+            contentType: 'application/json',
+        })
+        .done(function(data){
+            $('#rickross').text(data.amount);
+        })
+        .fail(function(data){
+        });
+
         $('#action-submit-donation').click(function(){
             // block if submitting
             // validate the amount fist
